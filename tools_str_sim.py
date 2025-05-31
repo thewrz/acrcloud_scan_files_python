@@ -1,21 +1,20 @@
-#!/usr/bin/env python
-#-*- coding:utf-8 -*-
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 author: hong
-Copyright (c) 2011 Adam Cohen
-......
-
+Originally © 2011 Adam Cohen
+Updated for Python 3.13 compatibility
 """
+
 import re
 import sys
 import string
 from fuzzywuzzy import fuzz
 
-reload(sys)
-sys.setdefaultencoding("utf8")
+# Python 3 handles UTF-8 by default — no need to set encoding manually
 
-RE_SPECIAL_STRING = """[ \[\]［］\(\)（）\n\t\r,\.\:"'‘“<>《》!！?？&]"""
-RE_SUB_STRING = "(\(.*\))|(\[.*\])|(（.*）)"
+RE_SPECIAL_STRING = r"""[ \[\]［］\(\)（）\n\t\r,\.\:"'‘“<>《》!！?？&]"""
+RE_SUB_STRING = r"(\(.*\))|(\[.*\])|(（.*）)"
 THREADHOLD = 75
 
 #https://stackoverflow.com/questions/286921/efficiently-replace-all-accented-characters-in-a-string
@@ -882,20 +881,39 @@ def str_sub(old_str):
     new_str = remove_punct(new_str.strip())
     return new_str
 
+from fuzzywuzzy import fuzz  # Make sure this is installed: pip install fuzzywuzzy
+
+THREADHOLD = 80  # You may want to tune this threshold based on accuracy
+
 def str_sim(str1_old, str2_old):
-    '''
-    warning: do not str1=str(str1)
-    '''
+    """
+    Compare two strings for similarity using normalized filtering and fuzzy matching.
+    Returns a tuple (bool, str): whether they match and the similarity ratio.
+    """
+
     str1 = str(str1_old)
     str2 = str(str2_old)
 
     format_str1 = str_filter(str1.lower().strip())
     format_str2 = str_filter(str2.lower().strip())
-    if format_str1 == format_str2 or format_str1.find(format_str2) != -1 or format_str2.find(format_str1) != -1:
-	return True, ""
+
+    if (
+        format_str1 == format_str2
+        or format_str1.find(format_str2) != -1
+        or format_str2.find(format_str1) != -1
+    ):
+        return True, ""
 
     format_str1 = str_filter_sub(str1.lower().strip())
     format_str2 = str_filter_sub(str2.lower().strip())
-    ratio = fuzz.ratio(format_str1, format_str2)
-    return ratio >= THREADHOLD or format_str1 == format_str2 or format_str1.find(format_str2) != -1 or format_str2.find(format_str1) != -1 , str(ratio)
 
+    ratio = fuzz.ratio(format_str1, format_str2)
+
+    match = (
+        ratio >= THREADHOLD
+        or format_str1 == format_str2
+        or format_str1.find(format_str2) != -1
+        or format_str2.find(format_str1) != -1
+    )
+
+    return match, str(ratio)

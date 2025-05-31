@@ -12,10 +12,6 @@ import tools_str_sim
 import acrcloud_logger
 from dateutil.relativedelta import *
 
-if sys.version_info.major == 2:
-    reload(sys)
-    sys.setdefaultencoding("utf8")
-
 NORESULT = "noResult"
 
 class ResultFilter:
@@ -68,38 +64,49 @@ class ResultFilter:
             self._dlog.logger.error("Error_Data: {0}".format(data))
         return ret_list if ret_list else [NORESULT]
 
-    def get_mutil_result_acrid(self, data, itype='music', isize = 1):
-        ret_list = []
-        index = 0
-        json_res = data["result"]
-        if json_res == NORESULT:
-            return [NORESULT]
-        try:
-            if json_res['status']['code'] == 0:
-                if itype == 'music':
-                    if 'metadata' in json_res and 'music' in json_res['metadata']:
-                        for item in json_res['metadata']['music']:
-                            ret_list.append(item['acrid'])
-                            index += 1
-                            if index >= isize:
-                                break
-                    elif 'metainfos' in json_res:
-                        for item in json_res['metainfos']:
-                            ret_list.append(item['acrid'])
-                            index += 1
-                            if index >= isize:
-                                break
-                elif itype == 'custom':
-                    if 'metadata' in json_res and 'custom_files' in json_res['metadata']:
-                        for item in json_res['metadata']['custom_files']:
-                            ret_list.append(item['acrid'])
-                            index += 1
-                            if index >= isize:
-                                break
-        except Exception as e:
-            self._dlog.logger.error("Error@get_mutil_result_acrid", exc_info=True)
-            self._dlog.logger.error("Error_Data: {0}".format(json.dumps(result)))
-        return ret_list if ret_list else [NORESULT]
+def get_mutil_result_acrid(self, data, itype='music', isize=1):
+    ret_list = []
+    index = 0
+
+    json_res = data.get("result")
+    if json_res == NORESULT or not isinstance(json_res, dict):
+        return [NORESULT]
+
+    try:
+        if json_res.get('status', {}).get('code') == 0:
+            metadata = json_res.get('metadata', {})
+            if itype == 'music':
+                music_list = metadata.get('music', [])
+                for item in music_list:
+                    acrid = item.get('acrid')
+                    if acrid:
+                        ret_list.append(acrid)
+                        index += 1
+                        if index >= isize:
+                            break
+            elif itype == 'custom':
+                custom_list = metadata.get('custom_files', [])
+                for item in custom_list:
+                    acrid = item.get('acrid')
+                    if acrid:
+                        ret_list.append(acrid)
+                        index += 1
+                        if index >= isize:
+                            break
+            elif 'metainfos' in json_res:
+                for item in json_res['metainfos']:
+                    acrid = item.get('acrid')
+                    if acrid:
+                        ret_list.append(acrid)
+                        index += 1
+                        if index >= isize:
+                            break
+
+    except Exception as e:
+        self._dlog.logger.error("Error@get_mutil_result_acrid", exc_info=True)
+        self._dlog.logger.error("Error_Data: %s", json.dumps(json_res))
+
+    return ret_list if ret_list else [NORESULT]
 
     def swap_position(self, ret_title, ret_data, itype):
         json_res = ret_data["result"]

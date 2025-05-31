@@ -55,24 +55,30 @@ class tools_language:
             return False
 
     def B2Q(self, uchar):
-        inside_code=ord(uchar)
-        if inside_code<0x0020 or inside_code>0x7e:
+        """
+        Convert half-width ASCII character to full-width Unicode character.
+        """
+        inside_code = ord(uchar)
+        if inside_code < 0x0020 or inside_code > 0x7E:
             return uchar
-        if inside_code==0x0020:
-            inside_code=0x3000
+        if inside_code == 0x0020:
+            inside_code = 0x3000
         else:
-            inside_code+=0xfee0
-        return unichr(inside_code)
+            inside_code += 0xFEE0
+        return chr(inside_code)
 
     def Q2B(self, uchar):
-        inside_code=ord(uchar)
-        if inside_code==0x3000:
-            inside_code=0x0020
+        """
+        Convert full-width Unicode character to half-width ASCII character.
+        """
+        inside_code = ord(uchar)
+        if inside_code == 0x3000:
+            inside_code = 0x0020
         else:
-            inside_code-=0xfee0
-        if inside_code<0x0020 or inside_code>0x7e:
+            inside_code -= 0xFEE0
+        if inside_code < 0x0020 or inside_code > 0x7E:
             return uchar
-        return unichr(inside_code)
+        return chr(inside_code)
 
     def stringQ2B(self, ustring):
         return "".join([self.Q2B(uchar) for uchar in ustring])

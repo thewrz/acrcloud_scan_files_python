@@ -14,10 +14,6 @@ from acrcloud_filter_libary import FilterWorker
 from acrcloud_logger import AcrcloudLogger
 from acrcloud.recognizer import ACRCloudRecognizer
 
-if sys.version_info.major == 2:
-    reload(sys)
-    sys.setdefaultencoding("utf8")
-
 class ACRCloud_Scan_Files:
 
     def __init__(self, config, debug=1):
