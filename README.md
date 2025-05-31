@@ -82,7 +82,12 @@ pip install -r requirements.txt
  
  x64: [download and install Library(windows/vcredist_x64.exe)](https://www.microsoft.com/en-us/download/details.aspx?id=14632)
 
- 
+#### For latest library you can have pip install it from git
+```
+pip install git+https://github.com/acrcloud/acrcloud_sdk_python.git
+```
+
+
 ## Usage for Scan File Tool: 
 
         _    ____ ____   ____ _                 _
